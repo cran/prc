@@ -1,0 +1,9 @@
+useDynLib(prc)
+
+export(prc, coef.prc, plot.prc, predict.prc, print.prc, lines.prc)
+export(four_pl_prc, s.dot.f)
+export(compute.A, prcsp, mixlik.prc, mixlik)
+export(quadratic.eiv, print.quad, coef.quad, plot.quad, lines.quad, quad.f, quadratic.eiv.sp)
+
+import(kyotil)
+importFrom(nlme, gnls, gnlsControl)

@@ -1,0 +1,13 @@
+2014-05-24  Youyi Fong
+    * create package
+
+2014-7-7
+    * change the algorithm to use sdc.3.deriv.r in step 2.
+    * version shared with Yunda, Allan and Peter
+
+2014-10-7
+    * make changes so that x and y and r are understood as to be on the log scale
+
+2014-11-4
+    * manuscript submitted
+    * changed name from sdc to prc
