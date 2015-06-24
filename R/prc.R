@@ -1,53 +1,5 @@
-# expressions and deriv3 functions
-# x, y and r are all on the log scale
-    
-m.0.expr <- expression( (y - log(c+(d-c)/(1+(((d-c)/(exp(x)-c))^(1/f)-1)*k^b)^f)) ^2 )
-m.0=deriv3(m.0.expr, c("c","d","b","f"), c("c","d","b","f", "x","y","k"))
-    
-m.expr <- expression( (y - log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f)) ^2  +  (x - r) ^2 )
-#m.f=function(c,d,b,f,r,x,y,k)  (y - log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f))^2  +  (x - r)^2 
-m.f=deriv3(m.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r","x","y","k")) # gradient is used in computing variance
-m.deriv.r=deriv3(m.expr, c("r"), c("r", "c","d","b","f", "x","y","k"))
-m.deriv.theta=deriv3(m.expr, c("c","d","b","f"), c("c","d","b","f", "r","x","y","k"))
-    
-s.expr <- expression( log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )
-s.f=deriv3(s.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r", "k")) #  not exported. Within the pkg, it is nice to have a function with as simple a name as s.
-
-#four_pl_prc = function(c,d,b,f, xx, k) log(c+(d-c)/(1+(((d-c)/(exp(xx)-c))^(1/f)-1)*k^b)^f) 
-# the .Call version is twice as fast as the R version
-four_pl_prc = function(c,d,b,f, xx, k) {
-    .Call("compute_four_pl_prc", c,d,b,f, xx, k)
-    #.Call("compute_four_pl_prc", .as.double(c),.as.double(d),.as.double(b),.as.double(f), .as.double(xx), k) # very slow
-}
-
-s.dot.expr <- expression( k^b * exp(r) * ( 1/(exp(r)-c) * (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f )^(1/f+1) / (c+ (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )
-# exported function
-s.dot.f=deriv3(s.dot.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r", "k")) 
-    
-cdbf=c("c","d","b","f")
-
-# these can use C implementation
-# A is a matrix n x a, B is a matrix n x b, ret an array n x a x b
-"%.%" <- function (A, B) {
-    n=nrow(A)
-    out=array(dim=c(n, ncol(A), ncol(B)))
-    for (i in 1:n) {
-        out[i,,]=A[i,] %o% B[i,]
-    }
-    out
-}
-# A is a matrix n x a, B is a matrix a x a, C is a matrix n x a, return a vector of length n 
-special.mat.f.1 <- function (A, B, C) {
-    n=nrow(A)
-    out=numeric (n)
-    for (i in 1:n) {
-        out[i]=A[i,,drop=FALSE] %*% B %*% t(C[i,,drop=FALSE])
-    }
-    out
-}
-
-# reltol=1e-3; opt.method="gnls"; max.iter=50; verbose=TRUE; model="4P"; method="M-estimator"; init.method="gnls"
-prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator","naive"),
+# reltol=1e-3; opt.method="gnls"; max.iter=50; verbose=TRUE; model="4P"; method="TLS"; init.method="gnls"
+prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive"),
   init.method=c("gnls","optim"), opt.method=c("gnls","optim"), reltol=1e-3, max.iter=50, init=NULL,
   verbose=FALSE) {    
     
@@ -75,18 +27,23 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
     if (is.null(init)) {
         init=c("c"=exp(min(xvar,yvar))*0.8, "d"=exp(max(xvar,yvar)), "b"=-1) # *0.8 is to make c smaller than the smallest value of data, assuming readouts can only be positive
         if (!f.is.1) init=c(init,f=1)
-        if (verbose) {cat("Starting with:", init, "\n")}    
+        if (verbose) {cat("init:", init, "\n")}    
         if(init.method=="gnls") {
             # note that one of the good things about gnls is that NaN is removed, so c and d estimate can be more reasonable
             if (!f.is.1) {
                 formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%+%k%+%"^b*(((d-c)/(exp(readout.x)-c))^(1/f)-1))^f)"  ) 
             } else formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%+%k%+%"^b*(((d-c)/(exp(readout.x)-c))-1)))"  ) 
-            fit.1=try(gnls(formula.gnls, data=dat, start=init, control=gnlsControl(
+            # suppress warnings from the following gnls
+            fit.1=try(suppressWarnings(gnls(formula.gnls, data=dat, start=init, control=gnlsControl(
                 nlsTol=1e-1,  # nlsTol seems to be important, if set to 0.01, then often does not converge
                 tolerance=1e-4, 
                 # msTol=1e-1, minScale=1e-1, .relStep=1e-7,
                 returnObject=TRUE, # allow the return of the fit when the max iter is reached
-                maxIter=5000, nlsMaxIter=50, opt="nlminb", msVerbose=T)), silent=FALSE)       
+                maxIter=5000, nlsMaxIter=50, opt="nlminb", msVerbose=T))), silent=FALSE)   
+            if(inherits(fit.1, "try-error")) {
+                res$error="cannot use naive method (gnls) to find initial valu"
+                return (res)
+            }
             theta=coef(fit.1)
             if (f.is.1) theta=c(theta,f=1)            
         } else if (init.method=="optim") {
@@ -99,6 +56,12 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
         }            
     } else {
         theta=init
+    }
+    
+    if (theta["c"]<0) {
+        res$error="the initial estimate of theta has negative c"
+        cat(res$error, "\n", file=stderr())
+        return (res)        
     }
     
     if (method=="naive") {
@@ -122,16 +85,18 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
     
     #### Step 2 & 3: loop
     
-    if (verbose) cat("Initial theta:", theta, "\n")
+    if (verbose) cat("LS fit:", theta, "\n")
     rvar = numeric(n)
     # to use gnls, we need to reparameterize to use s.halfk.rvar, which is prc evaluated at rvar with k=sqrt(k)
     s.sqrt.k.rvar = numeric(n)
     iterations=0
     
+    
     while(TRUE) {
     
         iterations=iterations+1
         
+        dis=numeric(n)
         # Step 2: estimate invidivual mean at a dilution between the two dilutions
         for (i in 1:n) {
             # use optimize
@@ -139,6 +104,7 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
             interval = c(log(theta["c"])-10, log(theta["d"])+10) # a very relaxed constraint while looping
             optimize.out = suppressWarnings(optimize(m.deriv.r, interval = interval, theta["c"], theta["d"], theta["b"], theta["f"], xvar[i], yvar[i], k))
             rvar[i]=optimize.out$minimum
+            dis[i]=optimize.out$objective
             
 #            optim.out = optim(
 #                  par=log(sqrt(theta["c"] * theta["d"])), 
@@ -160,12 +126,18 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
                 formula.gnls = as.formula(  "(readout) ~ log(c+(d-c)/(1+k^b*(((d-c)/(exp(x)-c))-1)))"  ) # 3P
                 start=theta[names(theta)!="f"]
             }
-            fit.1=try(gnls(formula.gnls, data=dat.stacked, start=start, control=gnlsControl(
+            # use suppressWarnings to not print warning msgs like "step halving factor reduced below minimum in NLS step"
+            fit.1=try(suppressWarnings(gnls(formula.gnls, data=dat.stacked, start=start, control=gnlsControl(
                 nlsTol=1e-1,  # nlsTol seems to be important, if set to 0.01, then often does not converge
                 tolerance=1e-4, 
                 # msTol=1e-1, minScale=1e-1, .relStep=1e-7,
                 returnObject=TRUE, # allow the return of the fit when the max iter is reached
-                maxIter=5000, nlsMaxIter=50, opt="nlminb", msVerbose=T)), silent=FALSE)       
+                maxIter=5000, nlsMaxIter=50, opt="nlminb", msVerbose=T))), silent=TRUE)       
+            if (inherits(fit.1, "try-error")) {
+                res$error="Failure in step 3 gnls call"
+                cat(res$error, "\n", file=stderr())
+                break;
+            }
             new.theta=coef(fit.1)
             if (f.is.1) new.theta=c(new.theta,f=1)
             
@@ -181,7 +153,7 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
         }
             
         if (verbose) {
-            cat("Iter "%+%iterations%+%".", "theta:", new.theta)
+            cat("Iter "%+%iterations%+%":", new.theta)
             if (opt.method=="gnls") cat(" logLik:", fit.1$logLik)
             cat("\n")            
         }
@@ -198,6 +170,9 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
         }        
             
     } # end while loop
+    if (!is.null(res$error)) {
+        return (res)
+    }
     
     c=theta["c"]; d=theta["d"]; b=theta["b"]; f=theta["f"]
     
@@ -262,8 +237,9 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator
         res$vxhat = res$sigma.sq/(1+sdot^2)
         res$vyhat = res$sigma.sq/(1+sdot^(-2))
             
-        V.inv = try(solve(colMeans(dm.dtheta.dtheta)))
+        V.inv = try(solve(colMeans(dm.dtheta.dtheta)), silent=TRUE)
         if (inherits(V.inv, "try-error")) {
+            if (verbose) cat("Fails to estimate covariance matrix\n")
             res$Sigma.hat=NULL
         } else {
             Sigma.hat = 1/n * (V.inv %*% colMeans (dm.dtheta %.% dm.dtheta) %*% V.inv) # 1/n is to get variance of theta^hat
@@ -308,7 +284,12 @@ plot.prc=function(x, type=c("b","l","p"), add=FALSE, diag.line=TRUE, lcol=2, pco
     
     if (!add) {
         if (is.null(xlim)) {
-            xlim=transf(range(exp(x$xvar),exp(x$yvar),c,d)); ylim=xlim
+            if (!is.null(x$var)) {
+                xlim=transf(range(exp(x$xvar),exp(x$yvar),c,d)); ylim=xlim
+            } else {
+                xlim=transf(c(c,d)); ylim=xlim
+            }
+            
         }
         if (type=="b") {
             plot(transf(exp(x$xvar)),transf(exp(x$yvar)), col=pcol, xlim=xlim, ylim=ylim, log=log.axis, xlab=xlab, ylab=ylab, ...)
@@ -350,7 +331,7 @@ print.prc=function(x, ...) {
     for (a in names(x)) {
         cat(a,"\n")
         
-        if (a %in% c("xvar", "yvar", "xhat", "yhat", "vxhat", "vyhat", "rvar")) {
+        if (a %in% c("xvar", "yvar", "xhat", "yhat", "vxhat", "vyhat", "rvar", "p", "support")) {
             print("vector of length "%+%length(x[[a]])%+%" ...", quote=FALSE)
         
         } else if (a == "A") {
@@ -386,4 +367,54 @@ predict.prc=function(object, new.dilution, xvar=NULL, dil.x=NULL, ret.sd=FALSE, 
     c=coef.["c"]; d=coef.["d"]; f=coef.["f"]; b=coef.["b"]
     res=four_pl_prc(c, d, b, f, oldvar, k)
     res
+}
+
+
+
+# expressions and deriv3 functions
+# x, y and r are all on the log scale
+    
+m.0.expr <- expression( (y - log(c+(d-c)/(1+(((d-c)/(exp(x)-c))^(1/f)-1)*k^b)^f)) ^2 )
+m.0=deriv3(m.0.expr, c("c","d","b","f"), c("c","d","b","f", "x","y","k"))
+    
+m.expr <- expression( (y - log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f)) ^2  +  (x - r) ^2 )
+#m.f=function(c,d,b,f,r,x,y,k)  (y - log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f))^2  +  (x - r)^2 
+m.f=deriv3(m.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r","x","y","k")) # gradient is used in computing variance
+m.deriv.r=deriv3(m.expr, c("r"), c("r", "c","d","b","f", "x","y","k"))
+m.deriv.theta=deriv3(m.expr, c("c","d","b","f"), c("c","d","b","f", "r","x","y","k"))
+    
+s.expr <- expression( log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )
+s.f=deriv3(s.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r", "k")) #  not exported. Within the pkg, it is nice to have a function with as simple a name as s.
+
+#four_pl_prc = function(c,d,b,f, xx, k) log(c+(d-c)/(1+(((d-c)/(exp(xx)-c))^(1/f)-1)*k^b)^f) 
+# the .Call version is twice as fast as the R version
+four_pl_prc = function(c,d,b,f, xx, k) {
+    .Call("compute_four_pl_prc", c,d,b,f, xx, k)
+    #.Call("compute_four_pl_prc", .as.double(c),.as.double(d),.as.double(b),.as.double(f), .as.double(xx), k) # very slow
+}
+
+s.dot.expr <- expression( k^b * exp(r) * ( 1/(exp(r)-c) * (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f )^(1/f+1) / (c+ (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )
+# exported function
+s.dot.f=deriv3(s.dot.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r", "k")) 
+    
+cdbf=c("c","d","b","f")
+
+# these can use C implementation
+# A is a matrix n x a, B is a matrix n x b, ret an array n x a x b
+"%.%" <- function (A, B) {
+    n=nrow(A)
+    out=array(dim=c(n, ncol(A), ncol(B)))
+    for (i in 1:n) {
+        out[i,,]=A[i,] %o% B[i,]
+    }
+    out
+}
+# A is a matrix n x a, B is a matrix a x a, C is a matrix n x a, return a vector of length n 
+special.mat.f.1 <- function (A, B, C) {
+    n=nrow(A)
+    out=numeric (n)
+    for (i in 1:n) {
+        out[i]=A[i,,drop=FALSE] %*% B %*% t(C[i,,drop=FALSE])
+    }
+    out
 }

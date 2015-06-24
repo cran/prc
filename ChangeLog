@@ -11,3 +11,18 @@
 2014-11-4
     * manuscript submitted
     * changed name from sdc to prc
+
+2014-11-16
+
+2014-11-20
+    * make a grid before the loop begins so that the grid point is not
+    changing, even though which fall between c and d may be 
+    * catch an exception in prc
+
+2014-11-26
+    * change optimize interval for sigmasq from 10 fold to 5 fold
+
+2014-11-31
+    * fix the estimate of c in both sp and struct to be the TLS estimate of c
+    * add a try around call to lm.fit in prcsp
+    * use .Call to compute mixlik

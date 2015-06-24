@@ -37,6 +37,39 @@ SEXP compute_A(SEXP _c, SEXP _d, SEXP _b, SEXP _f, SEXP _dil_r, SEXP _sigma_sq, 
     return _ans;
 }
 
+SEXP compute_mixlik(SEXP _c, SEXP _d, SEXP _b, SEXP _f, SEXP _dil_r, SEXP _sigma_sq, SEXP _support, SEXP _xvar, SEXP _yvar, SEXP _p) {
+    int n=length(_xvar);
+    int K=length(_support);
+    SEXP _ans=PROTECT(allocVector(REALSXP, 1));
+    double c=*REAL(_c), d=*REAL(_d), b=*REAL(_b), f=*REAL(_f);
+    double dil_r=*REAL(_dil_r), sigma_sq=*REAL(_sigma_sq);
+    double *support=REAL(_support), *xvar=REAL(_xvar), *yvar=REAL(_yvar), *p=REAL(_p), *ans=REAL(_ans);
+    double * logmixlik = (double *) malloc(n * sizeof(double));
+
+    ans[0]=0;
+    int i,k;
+    double tmp, lik_k, bigger, dif;
+    for(i = 0;i < n;i++){
+        k=0;
+        tmp = pow(xvar[i] - support[k], 2) + pow(yvar[i] - log(c+(d-c)/pow(1+(pow((d-c)/(exp(support[k])-c), 1/f)-1)*pow(dil_r,b), f)), 2);
+        logmixlik[i] = log(p[k]) - log(sigma_sq) - tmp/sigma_sq/2; 
+        for(k = 1; k < K; k++){
+              // sigma_sq b/c it is the production of two normal densities
+            tmp = pow(xvar[i] - support[k], 2) + pow(yvar[i] - log(c+(d-c)/pow(1+(pow((d-c)/(exp(support[k])-c), 1/f)-1)*pow(dil_r,b), f)), 2);
+            lik_k = log(p[k]) - log(sigma_sq) - tmp/sigma_sq/2; 
+            // implement logmixlik[i] = logSumExpFor2(logmixlik[i], lik_k) in R
+            bigger = logmixlik[i]>lik_k?logmixlik[i]:lik_k;
+            dif = abs(logmixlik[i] - lik_k);
+            if (dif < 300) logmixlik[i] = log(exp(logmixlik[i] - bigger) + exp(lik_k - bigger)) + bigger; else logmixlik[i] = bigger;
+        }
+        ans[0] += logmixlik[i];
+    }
+    
+    free(logmixlik);
+    UNPROTECT(1);
+    return _ans;
+}
+
 SEXP compute_four_pl_prc (SEXP _c,SEXP _d,SEXP _b,SEXP _f, SEXP _xx, SEXP _dil_r) {
      int n=length(_xx);
      SEXP _ans=PROTECT(allocVector(REALSXP, n));

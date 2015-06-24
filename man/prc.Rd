@@ -1,5 +1,6 @@
 \name{prc}
 \alias{prc}
+\alias{prcstruct}
 \alias{coef.prc}
 \alias{predict.prc}
 \alias{plot.prc}
@@ -26,23 +27,24 @@ Estimate four-parameter paired response curve using both total least squares and
 }
 \usage{
 
-prc(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("M-estimator","naive"),
+prc(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive"),
   init.method=c("gnls","optim"), opt.method=c("gnls","optim"), reltol=1e-3, max.iter=50,
   init=NULL, verbose=FALSE)
 
+prcsp (xvar, dil.x, yvar, dil.y, model=c("sp","struct"), 
+    stop.when.dropping=FALSE, grid.density=200, 
+    init=NULL, method.init=c("TLS","naive"), reltol=1e-3, max.iter=20, 
+    try.additiona.support.sets=FALSE,  
+    keep.history=FALSE, verbose=FALSE) 
 
-prcsp (xvar, dil.x, yvar, dil.y, grid.density=200, init.method=c("gnls","optim"),
-    reltol=1e-3, max.iter=20, model=c("4P"), init=NULL, try.additiona.support.sets=TRUE,
-    verbose=FALSE)
+prcstruct(xvar, dil.x, yvar, dil.y, 
+    grid.density=200, method.init=c("TLS","naive"), reltol=1e-3, max.iter=20, init=NULL,
+    keep.history=FALSE, verbose=FALSE) 
 
-mixlik (object, ...) 
+\method{coef}{prc}(object, ...)
+\method{predict}{prc}(object, new.dilution, xvar=NULL, dil.x=NULL, ret.sd=FALSE, ...)
 \method{mixlik}{prc}(object, ...) 
 
-compute.A (logc,logd,b,f, dil.r, sigma.sq, support, xvar, yvar) 
-
-    
-\method{predict}{prc}(object, new.dilution, xvar=NULL, dil.x=NULL, ret.sd=FALSE, ...)
-\method{coef}{prc}(object, ...)
 \method{print}{prc}(x, ...)
 \method{plot}{prc}(x, type=c("b","l","p"), add=FALSE, diag.line=TRUE, lcol=2, pcol=1,
     log.axis=TRUE, xlab=NULL, ylab=NULL, lwd=2, xlim=NULL, ylim=NULL, ...) 
@@ -51,16 +53,24 @@ compute.A (logc,logd,b,f, dil.r, sigma.sq, support, xvar, yvar)
 four_pl_prc(c, d, b, f, xx, k)
 s.dot.f(c,d,b,f, r, k)
 
+mixlik (object, ...) 
+
+compute.A (logc,logd,b,f, dil.r, sigma.sq, support, xvar, yvar) 
+
+    
+
 quadratic.eiv (xvar, yvar, init=NULL, reltol=1e-3, opt.method=c("optim"), 
     stop.after.init=FALSE, max.iter=50, verbose=FALSE)
+
+quadratic.eiv.sp (xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, 
+    opt.method=c("optim"), max.iter=50, fix.sigma.sq=FALSE, verbose=FALSE)
+
 \method{coef}{quad}(object, ...)
 \method{print}{quad}(x, ...)
 \method{plot}{quad}(x, type=c("b","l"), add=FALSE, lcol=2, pcol=1, 
     xlab=NULL, ylab=NULL, lwd=2, x.range=NULL, log.axis=TRUE,...) 
 \method{lines}{quad}(x, col=1, x.range=NULL, ...) 
 
-quadratic.eiv.sp (xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, 
-    opt.method=c("optim"), max.iter=50, fix.sigma.sq=FALSE, verbose=FALSE)
 
 quad.f(a,b,c,x) 
 
@@ -83,7 +93,7 @@ numeric.
   \item{init.method}{gnls uses gnls to find initial parameter estimate and optim uses optim. In the initial estimation, measurement errors in the xvar are ignored.}
   \item{reltol}{relative tolerance convergence criterion used in optimization}
   \item{opt.method}{optimization method}
-  \item{method}{M-estimator minimizes total least squares. Naive minmizes least squares, ignoring measurement errors in the xvar.}
+  \item{method}{TLS minimizes total least squares. Naive minmizes least squares, ignoring measurement errors in the xvar.}
   \item{model}{4P is a four-parameter model proposed in Fong et al. 3P is a three-parameter model that assumes f=1 in 4P.}
   \item{max.iter}{maximum number of iterations to perform in optimization. Each iteration comprises finding the best r given theta and finding the best theta given r}
   \item{verbose}{Boolean. If TRUE, print messages during execution}
@@ -121,6 +131,11 @@ numeric.
   }
   \item{ylim}{ylim
   }
+  \item{keep.history}{Boolean
+  }
+  \item{stop.when.dropping}{Boolean}
+  \item{method.init}{string}
+
 
   \item{logc}{log(c) in the four-parameter paired response model}
   \item{logd}{log(d) in the four-parameter paired response model}
@@ -140,6 +155,9 @@ numeric.
 }
 \details{
 prc() operates on the scale on which the distance is defined. For example, for MBA/Luminex readouts, this is the log(FI) scale.
+
+In prcsp, if verbose>=2, will make plots of nonparametric distribution
+
 s.dot.f() is created with deriv3 and it returns prc function value, as well as gradient and hessian at the point (r,s(r))
 
 quadratic.eiv and quadratic.eiv.sp deal with a quadratic model as an illustration

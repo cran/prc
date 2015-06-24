@@ -53,17 +53,6 @@ lines(fit.optim)
 fit.3P=prc (mtct.eg$V3_BioV3B_2500, 2500, mtct.eg$V3_BioV3B_500, 500, verbose=TRUE, model="3P"); fit.3P
 checkEqualsNumeric(coef(fit.3P), c(21.259201, 31946.684225,    -1.161139,     1.000000), tolerance=tolerance)
 
-# cannot alaways test b/c Rmosek may not be installed
-# prcsp
-if(file.exists("C:/_checkReproducibility")) {
-
-#t1=Sys.time()
-#fit=prcsp (mtct.eg$V3_BioV3B_2500, 2500, mtct.eg$V3_BioV3B_500, 500, try.additiona.support.sets=FALSE, verbose=2, max.iter=2)
-#t2=Sys.time()
-#print(t2-t1)
-#checkEqualsNumeric(coef(fit), c(16.7849262, 27977.8826664,    -2.1984168     ,0.4572406), tolerance=tolerance)
-
-}
 
 
 }

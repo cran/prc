@@ -1,9 +1,22 @@
 useDynLib(prc)
 
-export(prc, coef.prc, plot.prc, predict.prc, print.prc, lines.prc)
+export(prc)
 export(four_pl_prc, s.dot.f)
-export(compute.A, prcsp, mixlik.prc, mixlik)
-export(quadratic.eiv, print.quad, coef.quad, plot.quad, lines.quad, quad.f, quadratic.eiv.sp)
+export(compute.A, prcsp, prcstruct, mixlik)
+export(quadratic.eiv, quad.f, quadratic.eiv.sp)
 
 import(kyotil)
 importFrom(nlme, gnls, gnlsControl)
+
+S3method(coef, prc)
+S3method(coef, prc)
+S3method(plot, prc)
+S3method(predict, prc)
+S3method(print, prc)
+S3method(lines, prc)
+S3method(mixlik, prc)
+
+S3method(print, quad)
+S3method(coef, quad)
+S3method(plot, quad)
+S3method(lines, quad)

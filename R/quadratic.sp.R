@@ -2,8 +2,11 @@
 quadratic.eiv.sp=function(xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, opt.method=c("optim"), max.iter=50, fix.sigma.sq=FALSE, verbose=FALSE) {    
     
     # removing this line requires adding package namespace to Matrix and mosek function calls
-    have.Rmosek=try(require(Rmosek))
-    if (!have.Rmosek) stop("have.Rmosek does not load successfully. The package is not on CRAN and needs to be installed.")
+    have.Rmosek=requireNamespace("Rmosek")
+    if (!have.Rmosek) {
+            print("Rmosek does not load successfully")
+            return (NULL)
+    }
     
     stopifnot(length(xvar)==length(yvar))
     n=length(xvar)    
