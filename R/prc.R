@@ -386,11 +386,15 @@ m.deriv.theta=deriv3(m.expr, c("c","d","b","f"), c("c","d","b","f", "r","x","y",
 s.expr <- expression( log(c+(d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )
 s.f=deriv3(s.expr, c("c","d","b","f", "r"), c("c","d","b","f", "r", "k")) #  not exported. Within the pkg, it is nice to have a function with as simple a name as s.
 
-#four_pl_prc = function(c,d,b,f, xx, k) log(c+(d-c)/(1+(((d-c)/(exp(xx)-c))^(1/f)-1)*k^b)^f) 
 # the .Call version is twice as fast as the R version
-four_pl_prc = function(c,d,b,f, xx, k) {
-    .Call("compute_four_pl_prc", c,d,b,f, xx, k)
-    #.Call("compute_four_pl_prc", .as.double(c),.as.double(d),.as.double(b),.as.double(f), .as.double(xx), k) # very slow
+four_pl_prc = function(c,d,b,f, xx, k, call.C=TRUE) {
+    if(call.C) {
+        out=.Call("compute_four_pl_prc", c,d,b,f, xx, k)
+    } else {
+        out=ifelse(abs(exp(xx)-c)<1e-10, log(c), log(c+(d-c)/(1+(((d-c)/(exp(xx)-c))^(1/f)-1)*k^b)^f) )
+    }
+    out
+     #.Call("compute_four_pl_prc", .as.double(c),.as.double(d),.as.double(b),.as.double(f), .as.double(xx), k) # very slow
 }
 
 s.dot.expr <- expression( k^b * exp(r) * ( 1/(exp(r)-c) * (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f )^(1/f+1) / (c+ (d-c)/(1+(((d-c)/(exp(r)-c))^(1/f)-1)*k^b)^f) )

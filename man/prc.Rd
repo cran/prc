@@ -50,7 +50,7 @@ prcstruct(xvar, dil.x, yvar, dil.y,
     log.axis=TRUE, xlab=NULL, ylab=NULL, lwd=2, xlim=NULL, ylim=NULL, ...) 
 \method{lines}{prc}(x, col=1, ...) 
 
-four_pl_prc(c, d, b, f, xx, k)
+four_pl_prc(c,d,b,f, xx, k, call.C=TRUE)
 s.dot.f(c,d,b,f, r, k)
 
 mixlik (object, ...) 
@@ -150,6 +150,7 @@ numeric.
 
   \item{grid.density}{number of grid points}
   \item{fix.sigma.sq}{whether to assume simgasq is fixed}
+  \item{call.C}{Boolean}
 
   \item{...}{more args}
 }

@@ -1,4 +1,4 @@
-useDynLib(prc)
+useDynLib(prc, .registration = TRUE)
 
 export(prc)
 export(four_pl_prc, s.dot.f)
@@ -20,3 +20,10 @@ S3method(print, quad)
 S3method(coef, quad)
 S3method(plot, quad)
 S3method(lines, quad)
+
+  importFrom("graphics", "abline", "lines", "par", "plot", "points",
+             "title")
+  importFrom("stats", "as.formula", "coef", "dbeta", "lm.fit", "nlminb",
+             "optim", "optimize")
+
+

@@ -59,7 +59,7 @@ SEXP compute_mixlik(SEXP _c, SEXP _d, SEXP _b, SEXP _f, SEXP _dil_r, SEXP _sigma
             lik_k = log(p[k]) - log(sigma_sq) - tmp/sigma_sq/2; 
             // implement logmixlik[i] = logSumExpFor2(logmixlik[i], lik_k) in R
             bigger = logmixlik[i]>lik_k?logmixlik[i]:lik_k;
-            dif = abs(logmixlik[i] - lik_k);
+            dif = fabs(logmixlik[i] - lik_k);
             if (dif < 300) logmixlik[i] = log(exp(logmixlik[i] - bigger) + exp(lik_k - bigger)) + bigger; else logmixlik[i] = bigger;
         }
         ans[0] += logmixlik[i];
@@ -79,7 +79,8 @@ SEXP compute_four_pl_prc (SEXP _c,SEXP _d,SEXP _b,SEXP _f, SEXP _xx, SEXP _dil_r
      
      int i;
     for(i = 0;i < n;i++){
-         ans[i]=log(c+(d-c)/pow(1+(pow((d-c)/(exp(xx[i])-c), 1/f)-1)*pow(dil_r,b), f));
+    	//otherwise there will be NaN when eg -1E-15 ^ -1/3
+    	if(fabs(exp(xx[i])-c)< 0.0000000001 ) ans[i]=log(c); else ans[i]=log(c+(d-c)/pow(1+(pow((d-c)/(exp(xx[i])-c), 1/f)-1)*pow(dil_r,b), f));
     }
     
     UNPROTECT(1);
