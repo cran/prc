@@ -26,3 +26,6 @@
     * fix the estimate of c in both sp and struct to be the TLS estimate of c
     * add a try around call to lm.fit in prcsp
     * use .Call to compute mixlik
+
+2018--8-17
+	* Change to use %.%

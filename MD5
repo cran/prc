@@ -1,10 +1,10 @@
-e75e72d92a445305c72818826bd03dee *ChangeLog
-5b7137e44c2ca8fe21150108547585cb *DESCRIPTION
+8749a691853bd3b81896b25e20684d8b *ChangeLog
+62171e40e463fb7db6bff944187f9fc2 *DESCRIPTION
 de83d5f4db45c341bad19925eb3428f8 *NAMESPACE
-9b590444c71fb0a08073f0fcbb449758 *R/prc.R
-56cd90314b20dbb6a8e19e90a23338ce *R/prcsp.R
-ace51681656a89101669821c53e291e7 *R/quadratic.R
-ab9bdfbd1e2a8085708d01a086aa4157 *R/quadratic.sp.R
+80d03485719e69fc76f50777f720f53b *R/prc.R
+257f1c6009663eccece0f77a11880d79 *R/prcsp.R
+282b0316150840ec7f737661a579328a *R/quadratic.R
+95b73ff2d1db4271fc43b85ce9371f3a *R/quadratic.sp.R
 e11e1a6f43c1bac4a6c48d0ece5c5ceb *data/mtct.eg.rda
 a616e808bd826e929f56223020649675 *inst/unitTests/Makefile
 515b18df7e17596dc38b9dbea407b26f *inst/unitTests/runRUnitTests.R
@@ -17,4 +17,4 @@ c3ce0e0d44a05072255cd17b8b36878e *man/mtct.eg.Rd
 27a8b41edf8f0a4345fbf00f23d3dfae *src/computeA.c
 3920adda9235845cebb4b4a065570e2f *src/computeA_quad.c
 7c22b1b500cab25872924e218f1645f5 *src/registerDynamicSymbol.c
-91ebadac4f9403454988ba67c9fa090e *tests/doRUnit.R
+9984986574cf40cdb59c419b6c26c31a *tests/doRUnit.R

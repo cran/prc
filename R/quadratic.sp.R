@@ -85,7 +85,7 @@ quadratic.eiv.sp=function(xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, 
                 print(c(mix.lik, mix.lik.1))
                 print(rbind(support, p))
             }
-            plot(0,0, type="n", ylim=c(0,max(p)), xlim=range(support), xlab="r", ylab="p", main="Iteration "%+%iterations)
+            plot(0,0, type="n", ylim=c(0,max(p)), xlim=range(support), xlab="r", ylab="p", main="Iteration "%.%iterations)
             points(support, p, pch=19)
             for (i in 1:length(p)) lines(rep(support[i],2), c(0,p[i]))            
         }
@@ -98,7 +98,7 @@ quadratic.eiv.sp=function(xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, 
             support=u[support.set]
             if (verbose>=3) print(rbind(support, p))
             if (verbose) {
-                plot(0,0, type="n", ylim=c(0,max(p)), xlim=range(support), xlab="r", ylab="p", main="Iteration "%+%iterations)
+                plot(0,0, type="n", ylim=c(0,max(p)), xlim=range(support), xlab="r", ylab="p", main="Iteration "%.%iterations)
                 points(support, p, pch=19)
                 for (i in 1:length(p)) lines(rep(support[i],2), c(0,p[i]))            
             }
@@ -140,7 +140,7 @@ quadratic.eiv.sp=function(xvar, yvar, grid.density=200, init=NULL, reltol=1e-3, 
         
             
         if (verbose) {
-            cat("Iter "%+%iterations%+%".", "UL", length(support), "mix.lik", mix.lik, "mix.lik.2", mix.lik.2, "theta:", new.theta)#, "support:", mean(support))
+            cat("Iter "%.%iterations%.%".", "UL", length(support), "mix.lik", mix.lik, "mix.lik.2", mix.lik.2, "theta:", new.theta)#, "support:", mean(support))
             cat("\n")            
         }
         if (max(abs(1 - new.theta/theta)) < reltol) {

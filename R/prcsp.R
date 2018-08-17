@@ -73,7 +73,7 @@ prcsp=function(xvar, dil.x, yvar, dil.y,
     while(TRUE) {
     
         iterations=iterations+1
-        if (verbose>=2) cat("=========== Iter "%+%iterations%+%" ==============\n") else cat(formatC(iterations,digits=2,), ") ", sep="")
+        if (verbose>=2) cat("=========== Iter "%.%iterations%.%" ==============\n") else cat(formatC(iterations,digits=2,), ") ", sep="")
         
         #########################################################
         # Step 2: update distribution of latent variable either nonparametrically or parametrically
@@ -100,7 +100,7 @@ prcsp=function(xvar, dil.x, yvar, dil.y,
             if (verbose>=2) {
                 myprint(mix.lik.dual)               
                 plot(fit.mosek$sol$itr$xc, sco1$A %*% fit.mosek$sol$itr$xx); abline(0,1) # sanity check
-                title(main="Iteration "%+%iterations, outer=T, line=-1)
+                title(main="Iteration "%.%iterations, outer=T, line=-1)
                 empty.plot()
                 #print(fit.mosek)
                 #print(table(fit.mosek$sol$itr$skc))        
@@ -139,7 +139,7 @@ prcsp=function(xvar, dil.x, yvar, dil.y,
             mix.lik.primals=numeric(num.sets)
             for (support.idx in 1:num.sets) {
                 if (verbose>=2) myprint(support.idx)
-                support.set = get("support.set."%+%support.idx)            
+                support.set = get("support.set."%.%support.idx)            
                 while (TRUE) {
                     p.fit=try(lm.fit(x = A[,support.set,drop=FALSE], y = 1/fit.mosek$sol$itr$xx))
                     if (inherits(p.fit, "try-error")) {mix.lik.primal=-Inf; break}
@@ -158,7 +158,7 @@ prcsp=function(xvar, dil.x, yvar, dil.y,
                     if (verbose>=2) {
                         myprint(mix.lik.primal, digits=6)
                         plot(p.fit$fitted.values, 1/fit.mosek$sol$itr$xx) # making sure we are doing a good job at recovering primal soln
-                        plot(0,0, type="n", ylim=range(c(0,p.new)), xlim=range(u[support.set]), xlab="r", ylab="p")#, main="Iteration "%+%iterations)
+                        plot(0,0, type="n", ylim=range(c(0,p.new)), xlim=range(u[support.set]), xlab="r", ylab="p")#, main="Iteration "%.%iterations)
                         points(u[support.set], p.new, pch=19)
                         for (i in 1:length(p.new)) lines(rep(u[support.set][i],2), c(0,p.new[i]))            
                         if (verbose>=3) {

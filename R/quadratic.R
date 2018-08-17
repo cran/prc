@@ -126,7 +126,7 @@ quadratic.eiv=function(xvar, yvar, init=NULL, reltol=1e-3, opt.method=c("optim")
         }
             
         if (verbose) {
-            cat("Iter "%+%iterations%+%".", "theta:", new.theta)
+            cat("Iter "%.%iterations%.%".", "theta:", new.theta)
             if (opt.method=="optim") cat(" val:", optim.out$value)
             cat("\n")            
         }
@@ -166,7 +166,7 @@ print.quad=function(x, ...) {
         cat(a,"\n")
         
         if (a %in% c("xvar", "yvar", "rvar")) {
-            print("vector of length "%+%length(x[[a]])%+%" ...", quote=FALSE)
+            print("vector of length "%.%length(x[[a]])%.%" ...", quote=FALSE)
         
         } else if (a == "A") {
             print("matrix of dim n by K", quote=FALSE)

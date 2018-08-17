@@ -31,8 +31,11 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive
         if(init.method=="gnls") {
             # note that one of the good things about gnls is that NaN is removed, so c and d estimate can be more reasonable
             if (!f.is.1) {
-                formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%+%k%+%"^b*(((d-c)/(exp(readout.x)-c))^(1/f)-1))^f)"  ) 
-            } else formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%+%k%+%"^b*(((d-c)/(exp(readout.x)-c))-1)))"  ) 
+            print("here")
+            print("a"%.% 1)
+            print(  "readout.y ~ log(c+(d-c)/(1+" %.% k %.% "^b*(((d-c)/(exp(readout.x)-c))^(1/f)-1))^f)"  )
+                formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%.%k%.%"^b*(((d-c)/(exp(readout.x)-c))^(1/f)-1))^f)"  ) 
+            } else formula.gnls = as.formula(  "readout.y ~ log(c+(d-c)/(1+"%.%k%.%"^b*(((d-c)/(exp(readout.x)-c))-1)))"  ) 
             # suppress warnings from the following gnls
             fit.1=try(suppressWarnings(gnls(formula.gnls, data=dat, start=init, control=gnlsControl(
                 nlsTol=1e-1,  # nlsTol seems to be important, if set to 0.01, then often does not converge
@@ -153,7 +156,7 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive
         }
             
         if (verbose) {
-            cat("Iter "%+%iterations%+%":", new.theta)
+            cat("Iter "%.%iterations%.%":", new.theta)
             if (opt.method=="gnls") cat(" logLik:", fit.1$logLik)
             cat("\n")            
         }
@@ -217,11 +220,11 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive
         dsdot.dtheta = dsdot_r_theta.dtheta + sddt * dr.dtheta
         dsddt.dtheta = dsddt_r_theta.dtheta + sddd * dr.dtheta
         
-        d.ds.dtheta.dtheta = ds_r_theta.dtheta.dtheta + dsdot_r_theta.dtheta %.% dr.dtheta
-        d.dsdot.dtheta.dtheta = dsdot_r_theta.dtheta.dtheta + dsddt_r_theta.dtheta %.% dr.dtheta
+        d.ds.dtheta.dtheta = ds_r_theta.dtheta.dtheta + dsdot_r_theta.dtheta %m% dr.dtheta  
+        d.dsdot.dtheta.dtheta = dsdot_r_theta.dtheta.dtheta + dsddt_r_theta.dtheta %m% dr.dtheta
         
-        dr.dtheta.dtheta = -A^(-2) * ( ((yvar-svar)*dsdot_r_theta.dtheta - sdot*ds_r_theta.dtheta) %.% (2*sdot*dsdot.dtheta + ds.dtheta*sddt - (yvar-svar)*dsddt.dtheta) ) + 
-            A^(-1) * ( -dsdot_r_theta.dtheta %.% ds.dtheta + (yvar-svar)*d.dsdot.dtheta.dtheta - ds_r_theta.dtheta %.% dsdot.dtheta - sdot * d.ds.dtheta.dtheta )
+        dr.dtheta.dtheta = -A^(-2) * ( ((yvar-svar)*dsdot_r_theta.dtheta - sdot*ds_r_theta.dtheta) %m% (2*sdot*dsdot.dtheta + ds.dtheta*sddt - (yvar-svar)*dsddt.dtheta) ) + 
+            A^(-1) * ( -dsdot_r_theta.dtheta %m% ds.dtheta + (yvar-svar)*d.dsdot.dtheta.dtheta - ds_r_theta.dtheta %m% dsdot.dtheta - sdot * d.ds.dtheta.dtheta )
         
         dm_r_theta.dtheta = attr(tmp.3,"gradient")[,cdbf]
         dm_r_theta.dr = attr(tmp.3,"gradient")[,"r"]    
@@ -231,8 +234,8 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive
         
         dm.dtheta = dm_r_theta.dtheta + dm_r_theta.dr * dr.dtheta
         
-        dm.dtheta.dtheta = dm_r_theta.dtheta.dtheta + dm_r_theta.dr.dtheta %.% dr.dtheta + dr.dtheta %.% dm_r_theta.dr.dtheta +
-            dm_r_theta.dr.dr * (dr.dtheta %.% dr.dtheta) + dm_r_theta.dr * dr.dtheta.dtheta
+        dm.dtheta.dtheta = dm_r_theta.dtheta.dtheta + dm_r_theta.dr.dtheta %m% dr.dtheta + dr.dtheta %m% dm_r_theta.dr.dtheta +
+            dm_r_theta.dr.dr * (dr.dtheta %m% dr.dtheta) + dm_r_theta.dr * dr.dtheta.dtheta
         
         res$vxhat = res$sigma.sq/(1+sdot^2)
         res$vyhat = res$sigma.sq/(1+sdot^(-2))
@@ -242,7 +245,7 @@ prc=function(xvar, dil.x, yvar, dil.y, model=c("4P","3P"), method=c("TLS","naive
             if (verbose) cat("Fails to estimate covariance matrix\n")
             res$Sigma.hat=NULL
         } else {
-            Sigma.hat = 1/n * (V.inv %*% colMeans (dm.dtheta %.% dm.dtheta) %*% V.inv) # 1/n is to get variance of theta^hat
+            Sigma.hat = 1/n * (V.inv %*% colMeans (dm.dtheta %m% dm.dtheta) %*% V.inv) # 1/n is to get variance of theta^hat
             res$Sigma.hat = Sigma.hat
         }
         
@@ -332,7 +335,7 @@ print.prc=function(x, ...) {
         cat(a,"\n")
         
         if (a %in% c("xvar", "yvar", "xhat", "yhat", "vxhat", "vyhat", "rvar", "p", "support")) {
-            print("vector of length "%+%length(x[[a]])%+%" ...", quote=FALSE)
+            print("vector of length "%.%length(x[[a]])%.%" ...", quote=FALSE)
         
         } else if (a == "A") {
             print("matrix of dim n by K", quote=FALSE)
@@ -405,7 +408,7 @@ cdbf=c("c","d","b","f")
 
 # these can use C implementation
 # A is a matrix n x a, B is a matrix n x b, ret an array n x a x b
-"%.%" <- function (A, B) {
+"%m%" <- function (A, B) {
     n=nrow(A)
     out=array(dim=c(n, ncol(A), ncol(B)))
     for (i in 1:n) {
