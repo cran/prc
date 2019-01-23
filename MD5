@@ -1,5 +1,5 @@
-8749a691853bd3b81896b25e20684d8b *ChangeLog
-62171e40e463fb7db6bff944187f9fc2 *DESCRIPTION
+f24dfa00938289bd9d8f261463d77ea0 *ChangeLog
+612056b7578814ccc7738ec6d0bdc8d2 *DESCRIPTION
 de83d5f4db45c341bad19925eb3428f8 *NAMESPACE
 80d03485719e69fc76f50777f720f53b *R/prc.R
 257f1c6009663eccece0f77a11880d79 *R/prcsp.R
@@ -9,7 +9,7 @@ e11e1a6f43c1bac4a6c48d0ece5c5ceb *data/mtct.eg.rda
 a616e808bd826e929f56223020649675 *inst/unitTests/Makefile
 515b18df7e17596dc38b9dbea407b26f *inst/unitTests/runRUnitTests.R
 43c791c9f022cc57bc9476374377a0db *inst/unitTests/runit.prc.R
-7400cd9a9571789f89724e151d877907 *inst/unitTests/runit.prcsp.R
+16f0953e5945a6107ecbadb853e444cd *inst/unitTests/runit.prcsp.R
 c3ce0e0d44a05072255cd17b8b36878e *man/mtct.eg.Rd
 2dc7e707ab354cfbb8e8cd851b731f33 *man/prc.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars

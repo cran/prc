@@ -27,5 +27,8 @@
     * add a try around call to lm.fit in prcsp
     * use .Call to compute mixlik
 
-2018--8-17
+2018-08-17
 	* Change to use %.%
+
+2019-01-23
+	* Adapt to changes in Rmosek

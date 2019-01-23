@@ -9,15 +9,16 @@ tolerance=1e-3
 if(file.exists("C:/_checkReproducibility")) tolerance=1e-6
 
 
-# semiparametric fit
-t1=Sys.time()
-fit=prcsp (mtct.eg$V3_BioV3B_2500[1:50], 2500, mtct.eg$V3_BioV3B_500[1:50], 500, try.additiona.support.sets=FALSE, verbose=2, max.iter=2, grid.density=50, stop.when.dropping=FALSE)
-t2=Sys.time()
-print(t2-t1)
-if (!is.null(fit)) {
-    checkEqualsNumeric(coef(fit), c(19.0012791, 28334.5818187,    -2.0655433,     0.4956502 ), tolerance=tolerance)
-    checkEqualsNumeric(mixlik(fit), 85.83998, tolerance=tolerance)
-}
+## this depends on mosek
+## semiparametric fit
+#t1=Sys.time()
+#fit=prcsp (mtct.eg$V3_BioV3B_2500[1:50], 2500, mtct.eg$V3_BioV3B_500[1:50], 500, try.additiona.support.sets=FALSE, verbose=2, max.iter=2, grid.density=50, stop.when.dropping=FALSE)
+#t2=Sys.time()
+#print(t2-t1)
+#if (!is.null(fit)) {
+#    checkEqualsNumeric(coef(fit), c(19.0012791, 28334.5818187,    -2.0655433,     0.4956502 ), tolerance=tolerance)
+#    checkEqualsNumeric(mixlik(fit), 85.83998, tolerance=tolerance)
+#}
 
 # structural model fit
 t1=Sys.time()
